@@ -25,7 +25,7 @@ For the expression `d = a + a*b`:
 
 ```text
 a = [d, c]
-b = [d]
+b = [c]
 c = [d]
 d = []
 ```
