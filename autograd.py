@@ -7,43 +7,52 @@ class Value:
         self._grad = 0.0
         self._prev = set(prev)
         self._op = op
+        self._backward = lambda: None
 
     def __add__(self, other):
-        out = self._data + other._data
-        return Value(out, prev=(self, other), op="+")
+        # forward pass
+        data = self._data + other._data
+        out = Value(data, prev=(self, other), op="+")
+
+        # function to call later
+        def _backward():
+            self._grad += out._grad
+            other._grad += out._grad
+
+        # register the call
+        out._backward = _backward
+        return out
 
     def __mul__(self, other):
-        out = self._data * other._data
-        return Value(out, prev=(self, other), op="*")
+        data = self._data * other._data
+        out = Value(data, prev=(self, other), op="*")
 
-    def __repr__(self):
-        return f"Value (data = {self._data}, grad = {self._grad})"
+        def _backward():
+            self._grad += out._grad * other._data
+            other._grad += out._grad * self._data
+
+        out._backward = _backward
+        return out
 
     def tanh(self):
-        return Value(
-            (1 - math.exp(-2 * self._data)) / (1 + math.exp(-2 * self._data)),
+        data = (1 - math.exp(-2 * self._data)) / (1 + math.exp(-2 * self._data))
+        out = Value(
+            data,
             prev=(self,),
             op="tanh",
         )
 
+        def _backward():
+            self._grad += out._grad * (1 - out._data**2)
+
+        out._backward = _backward
+        return out
+
     def backward(self):
-        if self._prev:
-            if self._op == "tanh":
-                (n,) = self._prev
-                n._grad = self._grad * (1 - self._data**2)
-                n.backward()
-            elif self._op == "+":
-                l, r = self._prev
-                l._grad = self._grad
-                r._grad = self._grad
-                l.backward()
-                r.backward()
-            elif self._op == "*":
-                l, r = self._prev
-                l._grad = self._grad * r._data
-                r._grad = self._grad * l._data
-                l.backward()
-                r.backward()
+        self._backward()
+
+    def __repr__(self):
+        return f"Value (data = {self._data}, grad = {self._grad})"
 
 
 if __name__ == "__main__":
