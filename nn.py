@@ -1,6 +1,8 @@
 import random
 from autograd import Value
 
+LEARNING_RATE = 0.01
+
 
 class Neuron:
     def __init__(self, nin):
@@ -11,9 +13,6 @@ class Neuron:
     def __call__(self, in_vec):
         if len(in_vec) != len(self.weights):
             return
-        if isinstance(in_vec[0], (int, float)):
-            for w in in_vec:
-                w = Value(w)
         return sum([w * x for w, x in zip(self.weights, in_vec)], self.bias)
 
     def parameters(self):
@@ -59,6 +58,16 @@ class MLP:
             params.extend(layer.parameters())
         return params
 
+    def zero_grad(self):
+        params = self.parameters()
+        for n in params:
+            n._grad = 0.0
+
+    def update_grads(self):
+        params = self.parameters()
+        for n in params:
+            n._data += -LEARNING_RATE * n._grad
+
 
 def print_params(params):
     print("######")
@@ -102,7 +111,26 @@ def mlp_test():
     print_params(mlp.parameters())
 
 
+def gradient_descent():
+    x = [[2.0, 3.0, -1.0], [3.0, -1.0, 0.5], [0.5, 1.0, 1.0], [1.0, 1.0, -1.0]]
+    y = [1.0, -1.0, -1.0, 1.0]
+    layer_dims = [3, 5, 5, 1]
+    mlp = MLP(layer_dims)
+    epoch = 38
+    for e in range(epoch):
+        y_pred = [mlp(x_i) for x_i in x]
+        loss = sum([(y_i - y_pred_i[0]) ** 2 for y_i, y_pred_i in zip(y, y_pred)])
+        print("epoch = ", e, "loss = ", loss)
+        mlp.zero_grad()
+        loss.backward()
+        mlp.update_grads()
+    y_pred = [mlp(x_i) for x_i in x]
+    for y_pred_i in y_pred:
+        print(y_pred_i[0])
+
+
 if __name__ == "__main__":
     # neuron_test()
     # layer_test()
-    mlp_test()
+    # mlp_test()
+    gradient_descent()
