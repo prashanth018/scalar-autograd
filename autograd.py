@@ -94,10 +94,10 @@ class Value:
     def backward(self):
         self._grad = 1.0
         order = topo_sort(self)
-        print("######")
-        for ord in order:
-            print(ord)
-        print("######")
+        # print("######")
+        # for ord in order:
+        #     print(ord)
+        # print("######")
         for node in order:
             node._backward()
 

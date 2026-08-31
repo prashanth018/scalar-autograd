@@ -16,6 +16,9 @@ class Neuron:
                 w = Value(w)
         return sum([w * x for w, x in zip(self.weights, in_vec)], self.bias)
 
+    def parameters(self):
+        return self.weights + [self.bias]
+
 
 # Input = [x1, x2, x3, x4]
 # A layer of 5 Neurons each of size 4
@@ -31,6 +34,12 @@ class Layer:
     def __call__(self, in_vec):
         return [neuron(in_vec) for neuron in self.neurons]
 
+    def parameters(self):
+        params = []
+        for n in self.neurons:
+            params.extend(n.parameters())
+        return params
+
 
 class MLP:
     def __init__(self, layer_dims):
@@ -41,4 +50,59 @@ class MLP:
     def __call__(self, vec):
         for layer in self.layers:
             vec = layer(vec)
+        # return vec[0] if len(vec) == 1 else vec
         return vec
+
+    def parameters(self):
+        params = []
+        for layer in self.layers:
+            params.extend(layer.parameters())
+        return params
+
+
+def print_params(params):
+    print("######")
+    for param in params:
+        print(param)
+    print("######")
+
+
+def neuron_test():
+    inp = [1.0, 2.0, 3.0]
+    n = Neuron(3)
+    params = n.parameters()
+    print_params(params)
+    out = n(inp)
+    out.backward()
+    print_params(params)
+
+
+def layer_test():
+    inp = [1.0, 2.0, 3.0]
+    l = Layer(3, 5)
+    out = l(inp)
+    for o in out:
+        o.backward()
+    print("out vals")
+    print_params(out)
+    print("layer param vals")
+    print_params(l.parameters())
+
+
+def mlp_test():
+    inp = [1.0, 2.0, 3.0]
+    layer_dims = [3, 5, 5, 1]
+    mlp = MLP(layer_dims)
+    out = mlp(inp)
+    for o in out:
+        o.backward()
+    print("out val")
+    print_params(out)
+    print("All MLP param vals")
+    print_params(mlp.parameters())
+
+
+if __name__ == "__main__":
+    # neuron_test()
+    # layer_test()
+    mlp_test()
