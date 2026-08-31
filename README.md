@@ -32,3 +32,19 @@ d = []
 
 **2. Call autograd on each node** that has all the nodes in its dependency list
 already visited.
+
+## Learning
+- Jacobian of a matrix: A Jacobian is a Gradient at a given input. It's a grid of "how much does each output move when each input wiggles," and backprop is nothing but multiplying by those grids on the way back.
+
+J = [ 10    0   ]
+    [  0   0.1  ]
+
+determinant   = 10 * 0.1 = 1
+singular vals = 10 and 0.1
+sigma_max     = 10
+
+Questions:
+What's the intuition behind?:
+- Singular value
+- Eigen value
+- Determinant
