@@ -2,14 +2,14 @@ import math
 
 
 class Value:
-    def __init__(self, data, prev=(), op=""):
+    def __init__(self, data, prev=(), op="", label=""):
         self._data = data
         self._grad = 0.0
         self._prev = set(prev)
         self._op = op
         self._backward = lambda: None
         self._hash = hash(self)
-        self._label = ""
+        self._label = label
 
     def __add__(self, other):
         other = other if isinstance(other, Value) else Value(other)

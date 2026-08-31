@@ -43,8 +43,11 @@ determinant   = 10 * 0.1 = 1
 singular vals = 10 and 0.1
 sigma_max     = 10
 
-Questions:
+## Questions
 What's the intuition behind?:
 - Singular value
 - Eigen value
 - Determinant
+
+## Gaps against the pytorch autograd
+- "prev" is multi-node, for example, sum([Values]) creates lot of intermediary nodes which aren't needed. Sum is the cheapest operation in the autograd and just takes prev._grad = out._grad. Efficient autograds take list of nodes and return a single value node. 
